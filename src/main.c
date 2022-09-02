@@ -54,6 +54,7 @@ int main()
         SwapEndianUInt(&Lookup[i]);
     }
 
+    // Texture coordinates and other metadata
 	struct MaterialInfoData MatInfo[header.MaterialInfoLength];
 	fread(&MatInfo, sizeof(MatInfo), 1, TSCB_file);
 	for (int i = 0; i < header.MaterialInfoLength; i++)

@@ -18,23 +18,27 @@ int main()
 		return 1;
 	}
 
+    // Reading header & fixing endian-ness
     fread(&header, sizeof(header), 1, TSCB_file);
-	SwapEndianUInt(&header.Unknown1);
-	SwapEndianUInt(&header.BaseTableOffset);
-	SwapEndianFloat(&header.WorldScale);
-	SwapEndianFloat(&header.TerrainMaxHeight);
-	SwapEndianUInt(&header.MaterialInfoLength);
-	SwapEndianUInt(&header.AreaArrayLength);
-	SwapEndianFloat(&header.TileSize);
-	printf("Version: %d\n", header.Version);
-	printf("Unknown 1: %d\n", header.Unknown1);
-	printf("Base File Table Offset (Relative): 0x%x\n", header.BaseTableOffset);
-	printf("World Scale: %f\n", header.WorldScale);
-	printf("Terrain Max Height: %f\n", header.TerrainMaxHeight);
-	printf("Size of Material Info Array: %d\n", header.MaterialInfoLength);
-	printf("Size of Area Array: %d\n", header.AreaArrayLength);
-	printf("Tile Size: %f\n", header.TileSize);
-	printf("\n\nMaterial Information Section\n\n");
+
+    {
+        SwapEndianUInt(&header.Unknown1);
+        SwapEndianUInt(&header.BaseTableOffset);
+        SwapEndianFloat(&header.WorldScale);
+        SwapEndianFloat(&header.TerrainMaxHeight);
+        SwapEndianUInt(&header.MaterialInfoLength);
+        SwapEndianUInt(&header.AreaArrayLength);
+        SwapEndianFloat(&header.TileSize);
+        printf("Version: %d\n", header.Version);
+        printf("Unknown 1: %d\n", header.Unknown1);
+        printf("Base File Table Offset (Relative): 0x%x\n", header.BaseTableOffset);
+        printf("World Scale: %f\n", header.WorldScale);
+        printf("Terrain Max Height: %f\n", header.TerrainMaxHeight);
+        printf("Size of Material Info Array: %d\n", header.MaterialInfoLength);
+        printf("Size of Area Array: %d\n", header.AreaArrayLength);
+        printf("Tile Size: %f\n", header.TileSize);
+        printf("\n\nMaterial Information Section\n\n");
+    }
 
 	// Material Information Section
 	unsigned int SectionSize;
@@ -42,25 +46,24 @@ int main()
 	SwapEndianUInt(&SectionSize);
 	printf("Section Size: %u\n", SectionSize);
 
-	// Unsigned int array with [header.MaterialInfoLength] elements
+	// Lookup table containing relative offsets to every element of the material info array
 	unsigned int Lookup[header.MaterialInfoLength];
     fread(&Lookup, sizeof(unsigned int), header.MaterialInfoLength, TSCB_file);
     for (int i = 0; i < header.MaterialInfoLength; i++)
     {
         SwapEndianUInt(&Lookup[i]);
-        printf("%u\n", (Lookup[i]));
     }
 
-	struct MaterialInfoData element[header.MaterialInfoLength];
-	fread(&element, sizeof(element), 1, TSCB_file);
+	struct MaterialInfoData MatInfo[header.MaterialInfoLength];
+	fread(&MatInfo, sizeof(MatInfo), 1, TSCB_file);
 	for (int i = 0; i < header.MaterialInfoLength; i++)
 	{
-		SwapEndianUInt(&element[i].index);
-		SwapEndianFloat(&element[i].Texture_U);
-		SwapEndianFloat(&element[i].Texture_V);
-		SwapEndianFloat(&element[i].Unknown1);
-		SwapEndianFloat(&element[i].Unknown2);
-	}
+		SwapEndianUInt(&MatInfo[i].index);
+        SwapEndianFloat(&MatInfo[i].Texture_V);
+        SwapEndianFloat(&MatInfo[i].Texture_U);
+        SwapEndianFloat(&MatInfo[i].Unknown1);
+        SwapEndianFloat(&MatInfo[i].Unknown2);
+    }
 
 
 	fclose(TSCB_file);

@@ -3,4 +3,4 @@ project(TSCB C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(TSCB src/main.c)
+add_executable(TSCB main.c)

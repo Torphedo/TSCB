@@ -1,4 +1,5 @@
 out/
+build/
 .idea/
 .vs/
 x64/

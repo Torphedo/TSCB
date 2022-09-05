@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <memory.h>
+#include <malloc.h>
 #include <stdint.h>
 
 #include "main.h"
@@ -48,13 +49,14 @@ int main()
 	SwapEndianUInt(&SectionSize);
 	printf("Section Size: %u\n", SectionSize);
 
-	// Lookup table containing relative offsets to every element of the material info array
-	unsigned int MatLookup[header.MaterialInfoLength];
-    fread(&MatLookup, sizeof(unsigned int), header.MaterialInfoLength, TSCB_file);
-    {
-    for (int i = 0; i < header.MaterialInfoLength; i++)
-        SwapEndianUInt(&MatLookup[i]);  // Fix endian-ness
-    }
+	/*
+	   Lookup table containing relative offsets to every element of the material info array.
+       This isn't parsed or stored because the table will be re-generated on save. The only
+       reason it's read at all is to advance the file pointer.
+    */
+
+	unsigned int* MatLookup = malloc(sizeof(unsigned int) * header.MaterialInfoLength);
+    fread(MatLookup, sizeof(unsigned int) * header.MaterialInfoLength, 1, TSCB_file);
 
     // Texture coordinates and other metadata
 	for (int i = 0; i < header.MaterialInfoLength; i++)
@@ -71,12 +73,9 @@ int main()
 
     // Area Array
 
-    unsigned int AreaLookup[header.AreaArrayLength];
-    fread(&AreaLookup, sizeof(unsigned int), header.AreaArrayLength, TSCB_file);
-    for (int i = 0; i < header.AreaArrayLength; i++)
-    {
-        SwapEndianUInt(&AreaLookup[i]); // Fix endian-ness
-    }
+    // Same reasoning as in the Material Information lookup table.
+    unsigned int* AreaLookup = malloc(sizeof(unsigned int) * header.AreaArrayLength);
+    fread(AreaLookup, sizeof(unsigned int) * header.AreaArrayLength, 1, TSCB_file);
 
     struct AreaArrayData AreaArray[header.AreaArrayLength];
     for (int i = 0; i < header.AreaArrayLength; i++)

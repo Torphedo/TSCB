@@ -40,7 +40,6 @@ int main()
         printf("\n\nMaterial Information Section\n\n");
     }
 
-    FILE* yamlout = fopen("MainField.yaml", "wb");
     ryml_set_header_data(header);
 
 	// Material Information Section
@@ -77,33 +76,36 @@ int main()
     unsigned int* AreaLookup = malloc(sizeof(unsigned int) * header.AreaArrayLength);
     fread(AreaLookup, sizeof(unsigned int) * header.AreaArrayLength, 1, TSCB_file);
 
-    struct AreaArrayData AreaArray[header.AreaArrayLength];
     for (int i = 0; i < header.AreaArrayLength; i++)
     {
-        fread(&AreaArray[i], sizeof(AreaArray), 1, TSCB_file);
-        SwapEndianFloat(&AreaArray[i].XPosition);
-        SwapEndianFloat(&AreaArray[i].YPosition);
-        SwapEndianFloat(&AreaArray[i].AreaSize);
-        SwapEndianFloat(&AreaArray[i].MinTerrainHeight);
-        SwapEndianFloat(&AreaArray[i].MaxTerrainHeight);
-        SwapEndianFloat(&AreaArray[i].MinWaterHeight);
-        SwapEndianFloat(&AreaArray[i].MaxWaterHeight);
-        SwapEndianUInt(&AreaArray[i].Unknown1);
-        SwapEndianUInt(&AreaArray[i].FileBaseOffset);
-        SwapEndianUInt(&AreaArray[i].Unknown2);
-        SwapEndianUInt(&AreaArray[i].Unknown3);
-        SwapEndianUInt(&AreaArray[i].ref_extra);
+        // This is getting freed at the end of the loop right now. The next
+        // step is to stream the data to the YAML tree in the loop.
+        struct AreaArrayData AreaArray;
 
-        if (AreaArray[i].ref_extra != 0)
+        fread(&AreaArray, sizeof(AreaArray), 1, TSCB_file);
+        SwapEndianFloat(&AreaArray.XPosition);
+        SwapEndianFloat(&AreaArray.YPosition);
+        SwapEndianFloat(&AreaArray.AreaSize);
+        SwapEndianFloat(&AreaArray.MinTerrainHeight);
+        SwapEndianFloat(&AreaArray.MaxTerrainHeight);
+        SwapEndianFloat(&AreaArray.MinWaterHeight);
+        SwapEndianFloat(&AreaArray.MaxWaterHeight);
+        SwapEndianUInt(&AreaArray.Unknown1);
+        SwapEndianUInt(&AreaArray.FileBaseOffset);
+        SwapEndianUInt(&AreaArray.Unknown2);
+        SwapEndianUInt(&AreaArray.Unknown3);
+        SwapEndianUInt(&AreaArray.ref_extra);
+
+        if (AreaArray.ref_extra != 0)
         {
-            fread(&AreaArray[i].ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
-            SwapEndianUInt(&AreaArray[i].ExtraInfoLength);
-            if (AreaArray[i].ExtraInfoLength == 8)
+            fread(&AreaArray.ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
+            SwapEndianUInt(&AreaArray.ExtraInfoLength);
+            if (AreaArray.ExtraInfoLength == 8)
             {
-                fread(&AreaArray[i].HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
-                SwapEndianUInt(&AreaArray[i].HeaderUnknown);
+                fread(&AreaArray.HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
+                SwapEndianUInt(&AreaArray.HeaderUnknown);
             }
-            for (int j = -1; j < (AreaArray[i].ExtraInfoLength / 4); j++)
+            for (int j = -1; j < (AreaArray.ExtraInfoLength / 4); j++)
             {
                 struct ExtraAreaArray ExtraInfo;
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
@@ -115,7 +117,9 @@ int main()
         }
     }
 
-    ryml_emit(yamlout);
+    FILE* yamlout = fopen("MainField.yaml", "wb");
+    ryml_emit(yamlout); // Writes the YAML tree to a file
+    fclose(yamlout);
 
 	fclose(TSCB_file);
 	return 0;

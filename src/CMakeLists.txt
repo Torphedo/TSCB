@@ -3,4 +3,4 @@ project(TSCB VERSION 0.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(TSCB main.cpp ryml.cpp)
+add_executable(TSCB main.cpp)

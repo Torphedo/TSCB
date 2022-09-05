@@ -1,10 +1,7 @@
-#include <stdio.h>
+#include <cstdio>
 #include <memory.h>
-#include <malloc.h>
-#include <stdint.h>
 
 #include "main.h"
-#include "ryml.h"
 
 int main()
 {
@@ -12,7 +9,7 @@ int main()
 	TSCB_Header header;
 	
     TSCB_file = fopen("MainField.tscb", "rb");
-	if (TSCB_file == NULL)
+	if (TSCB_file == nullptr)
 	{
 		printf("Couldn't open file! Place MainField.tscb next to the executable.\n");
 		return 1;
@@ -31,7 +28,16 @@ int main()
         SwapEndianFloat(&header.TileSize);
     }
 
-    ryml_set_header_data(header);
+    root |= ryml::MAP;
+
+    header_yaml header_yaml;
+    header_yaml.WorldScale = header_yaml.Root["WorldScale"];
+    header_yaml.TerrainHeightScale = header_yaml.Root["TerrainHeightScale"];
+    header_yaml.TileSize = header_yaml.Root["TileSize"];
+
+    header_yaml.WorldScale << header.WorldScale;
+    header_yaml.TerrainHeightScale << header.TerrainHeightScale;
+    header_yaml.TileSize << header.TileSize;
 
 	// Material Information Section
 	unsigned int SectionSize;
@@ -50,14 +56,25 @@ int main()
     // Texture coordinates and other metadata
 	for (int i = 0; i < header.MaterialInfoLength; i++)
 	{
-        struct MaterialInfoData MatInfo;
+        MaterialInfoData MatInfo;
         fread(&MatInfo, sizeof(MatInfo), 1, TSCB_file);
         SwapEndianUInt(&MatInfo.index);
         SwapEndianFloat(&MatInfo.Texture_V);
         SwapEndianFloat(&MatInfo.Texture_U);
         SwapEndianFloat(&MatInfo.Unknown1);
         SwapEndianFloat(&MatInfo.Unknown2);
-        ryml_set_matinfo_data(MatInfo, i);
+
+        materialinfo_yaml materialinfo;
+
+        materialinfo.Array = materialinfo.Root[i];
+        materialinfo.Array |= ryml::MAP;
+        materialinfo.Index = materialinfo.Array["Index"];
+        materialinfo.TextureCoordU = materialinfo.Array["TextureCoordU"];
+        materialinfo.TextureCoordV = materialinfo.Array["TextureCoordV"];
+
+        materialinfo.Index << i;
+        materialinfo.TextureCoordU << MatInfo.Texture_U;
+        materialinfo.TextureCoordV << MatInfo.Texture_V;
     }
 
     // Area Array
@@ -70,7 +87,7 @@ int main()
     {
         // This is getting freed at the end of the loop right now. The next
         // step is to stream the data to the YAML tree in the loop.
-        struct AreaArrayData AreaArray;
+        AreaArrayData AreaArray;
 
         fread(&AreaArray, sizeof(AreaArray), 1, TSCB_file);
         SwapEndianFloat(&AreaArray.XPosition);
@@ -97,7 +114,7 @@ int main()
             }
             for (int j = -1; j < (AreaArray.ExtraInfoLength / 4); j++)
             {
-                struct ExtraAreaArray ExtraInfo;
+                ExtraAreaArray ExtraInfo;
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown1); // Always 3.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown2); // Setting this to 0 = Grass, 1 = Water
@@ -108,7 +125,7 @@ int main()
     }
 
     FILE* yamlout = fopen("MainField.yaml", "wb");
-    ryml_emit(yamlout); // Writes the YAML tree to a file
+    ryml::emit(yaml_tree, yamlout); // Writes the YAML tree to a file
     fclose(yamlout);
 
 	fclose(TSCB_file);

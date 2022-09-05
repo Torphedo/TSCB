@@ -9,7 +9,7 @@
 int main()
 {
 	FILE* TSCB_file;
-	struct TSCB_Header header;
+	TSCB_Header header;
 	
     TSCB_file = fopen("MainField.tscb", "rb");
 	if (TSCB_file == NULL)
@@ -54,7 +54,7 @@ int main()
        reason it's read at all is to advance the file pointer.
     */
 
-	unsigned int* MatLookup = malloc(sizeof(unsigned int) * header.MaterialInfoLength);
+	unsigned int* MatLookup = new unsigned int[sizeof(unsigned int) * header.MaterialInfoLength];
     fread(MatLookup, sizeof(unsigned int) * header.MaterialInfoLength, 1, TSCB_file);
 
     // Texture coordinates and other metadata
@@ -73,7 +73,7 @@ int main()
     // Area Array
 
     // Same reasoning as in the Material Information lookup table.
-    unsigned int* AreaLookup = malloc(sizeof(unsigned int) * header.AreaArrayLength);
+    unsigned int* AreaLookup = new unsigned int[sizeof(unsigned int) * header.AreaArrayLength];
     fread(AreaLookup, sizeof(unsigned int) * header.AreaArrayLength, 1, TSCB_file);
 
     for (int i = 0; i < header.AreaArrayLength; i++)

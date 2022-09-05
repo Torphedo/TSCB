@@ -2,8 +2,7 @@
 
 struct TSCB_Header
 {
-	// Header
-	const char ID[4];				 // This will always be 54 53 43 42 ("TSCB")
+	char ID[4];				 // This will always be 54 53 43 42 ("TSCB")
 	unsigned int Version;			 // Game will crash on load unless this is 10.
 	unsigned int Unknown1;			 // Unknown. Game crashes on load unless this is 00 00 00 01.
 	unsigned int BaseTableOffset;	 // file_base table relative offset.

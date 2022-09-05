@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16) # Latest version on apt.
-project(TSCB VERSION 0.2.0 LANGUAGES C CXX)
+project(TSCB VERSION 0.2.0 LANGUAGES CXX)
 
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
-add_executable(TSCB main.c ryml.cpp)
+add_executable(TSCB main.cpp ryml.cpp)

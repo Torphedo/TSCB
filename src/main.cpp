@@ -29,15 +29,6 @@ int main()
         SwapEndianUInt(&header.MaterialInfoLength);
         SwapEndianUInt(&header.AreaArrayLength);
         SwapEndianFloat(&header.TileSize);
-        printf("Version: %d\n", header.Version);
-        printf("Unknown 1: %d\n", header.Unknown1);
-        printf("Base File Table Offset (Relative): 0x%x\n", header.BaseTableOffset);
-        printf("World Scale: %f\n", header.WorldScale);
-        printf("Terrain Height Scale: %f\n", header.TerrainHeightScale);
-        printf("Size of Material Info Array: %d\n", header.MaterialInfoLength);
-        printf("Size of Area Array: %d\n", header.AreaArrayLength);
-        printf("Tile Size: %f\n", header.TileSize);
-        printf("\n\nMaterial Information Section\n\n");
     }
 
     ryml_set_header_data(header);
@@ -46,7 +37,6 @@ int main()
 	unsigned int SectionSize;
 	fread(&SectionSize, sizeof(unsigned int), 1, TSCB_file);
 	SwapEndianUInt(&SectionSize);
-	printf("Section Size: %u\n", SectionSize);
 
 	/*
 	   Lookup table containing relative offsets to every element of the material info array.

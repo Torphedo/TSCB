@@ -71,10 +71,14 @@ int main()
         materialinfo.Index = materialinfo.Array["Index"];
         materialinfo.TextureCoordU = materialinfo.Array["TextureCoordU"];
         materialinfo.TextureCoordV = materialinfo.Array["TextureCoordV"];
+        materialinfo.UnknownFloat1 = materialinfo.Array["UnknownFloat1"];
+        materialinfo.UnknownFloat2 = materialinfo.Array["UnknownFloat2"];
 
         materialinfo.Index << i;
         materialinfo.TextureCoordU << MatInfo.Texture_U;
         materialinfo.TextureCoordV << MatInfo.Texture_V;
+        materialinfo.UnknownFloat1 << MatInfo.Unknown1;
+        materialinfo.UnknownFloat2 << MatInfo.Unknown2;
     }
 
     // Area Array

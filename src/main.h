@@ -23,9 +23,12 @@ struct materialinfo_yaml
 {
     ryml::NodeRef Root;
     ryml::NodeRef Array;
-    ryml::NodeRef Index;
+
+    ryml::NodeRef Index; // Index in the material info array
     ryml::NodeRef TextureCoordU;
     ryml::NodeRef TextureCoordV;
+    ryml::NodeRef UnknownFloat1; // Unknown purpose float, ranges from 0 to 1.
+    ryml::NodeRef UnknownFloat2; // Unknown purpose float, ranges from 0.2 to 1.63.
     materialinfo_yaml()
     {
         Root = root["MaterialInfo"];

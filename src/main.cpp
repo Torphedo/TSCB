@@ -95,7 +95,7 @@ int main()
 
         fread(&AreaArray, sizeof(AreaArray), 1, TSCB_file);
         SwapEndianFloat(&AreaArray.XPosition);
-        SwapEndianFloat(&AreaArray.YPosition);
+        SwapEndianFloat(&AreaArray.ZPosition);
         SwapEndianFloat(&AreaArray.AreaSize);
         SwapEndianFloat(&AreaArray.MinTerrainHeight);
         SwapEndianFloat(&AreaArray.MaxTerrainHeight);
@@ -107,16 +107,51 @@ int main()
         SwapEndianUInt(&AreaArray.Unknown3);
         SwapEndianUInt(&AreaArray.ref_extra);
 
+        AreaArray_yaml area(i);
+
+        area.Index << i;
+        area.XPosition << AreaArray.XPosition;
+        area.ZPosition << AreaArray.ZPosition;
+        area.AreaSize << AreaArray.AreaSize;
+        area.MinTerrainHeight << AreaArray.MinTerrainHeight;
+        area.MaxTerrainHeight << AreaArray.MaxTerrainHeight;
+        area.MinWaterHeight << AreaArray.MinWaterHeight;
+        area.MaxWaterHeight << AreaArray.MaxWaterHeight;
+        area.Unknown1 << AreaArray.Unknown1;
+        area.Unknown2 << AreaArray.Unknown2;
+        area.Unknown3 << AreaArray.Unknown3;
+        area.ref_extra << AreaArray.ref_extra;
+
+
         if (AreaArray.ref_extra != 0)
         {
-            fread(&AreaArray.ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
-            SwapEndianUInt(&AreaArray.ExtraInfoLength);
-            if (AreaArray.ExtraInfoLength == 8)
+            // Extra Info table, only present if ref_extra != 0.
+
+            ExtraInfo_yaml ExtraYaml;
+
+            ExtraYaml.Root = area.Root;
+            ExtraYaml.Root |= ryml::SEQ;
+
+            ExtraYaml.Array = area.Array;
+            ExtraYaml.Array |= ryml::MAP;
+
+            ExtraYaml.ExtraInfoLength = ExtraYaml.Array["ExtraInfoLength"];
+
+            unsigned int ExtraInfoLength; // Number of values in the array
+
+            fread(&ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
+            SwapEndianUInt(&ExtraInfoLength);
+            ExtraYaml.ExtraInfoLength << ExtraInfoLength;
+            if (ExtraInfoLength == 8)
             {
-                fread(&AreaArray.HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
-                SwapEndianUInt(&AreaArray.HeaderUnknown);
+                unsigned int HeaderUnknown;   // Only present if ExtraInfoLength = 8
+                fread(&HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
+                SwapEndianUInt(&HeaderUnknown);
+                ExtraYaml.HeaderUnknown = ExtraYaml.Array["HeaderUnknown"];
+                ExtraYaml.HeaderUnknown << HeaderUnknown;
             }
-            for (int j = -1; j < (AreaArray.ExtraInfoLength / 4); j++)
+
+            for (int j = 0; j < (ExtraInfoLength / 4); j++)
             {
                 ExtraAreaArray ExtraInfo;
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
@@ -124,6 +159,15 @@ int main()
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown2); // Setting this to 0 = Grass, 1 = Water
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
+
+                ExtraYaml.ExtraUnknown1 = ExtraYaml.Array["ExtraUnknown1"];
+                ExtraYaml.ExtraUnknown1 << ExtraInfo.ExtraUnknown1;
+                ExtraYaml.ExtraUnknown2 = ExtraYaml.Array["ExtraUnknown2"];
+                ExtraYaml.ExtraUnknown2 << ExtraInfo.ExtraUnknown2;
+                ExtraYaml.ExtraUnknown3 = ExtraYaml.Array["ExtraUnknown3"];
+                ExtraYaml.ExtraUnknown3 << ExtraInfo.ExtraUnknown3;
+                ExtraYaml.ExtraUnknown4 = ExtraYaml.Array["ExtraUnknown4"];
+                ExtraYaml.ExtraUnknown4 << ExtraInfo.ExtraUnknown4;
             }
         }
     }

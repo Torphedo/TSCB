@@ -36,6 +36,59 @@ struct materialinfo_yaml
     }
 };
 
+struct AreaArray_yaml
+{
+    ryml::NodeRef Root;
+    ryml::NodeRef Array;
+
+    ryml::NodeRef Index; // Index in the area array
+    ryml::NodeRef XPosition;
+    ryml::NodeRef ZPosition;
+    ryml::NodeRef AreaSize;
+    ryml::NodeRef MinTerrainHeight;
+    ryml::NodeRef MaxTerrainHeight;
+    ryml::NodeRef MinWaterHeight;
+    ryml::NodeRef MaxWaterHeight;
+    ryml::NodeRef Unknown1;
+    ryml::NodeRef Unknown2;
+    ryml::NodeRef Unknown3;
+    ryml::NodeRef ref_extra;
+    AreaArray_yaml(unsigned int index)
+    {
+        Root = root["AreaArray"];
+        Root |= ryml::SEQ;
+
+        Array = Root[index];
+        Array |= ryml::MAP;
+
+        Index = Array["Index"];
+        XPosition = Array["PositionX"];
+        ZPosition = Array["PositionZ"];
+        AreaSize = Array["AreaSize"];
+        MinTerrainHeight = Array["MinTerrainHeight"];
+        MaxTerrainHeight = Array["MaxTerrainHeight"];
+        MinWaterHeight = Array["MinWaterHeight"];
+        MaxWaterHeight = Array["MaxWaterHeight"];
+        Unknown1 = Array["Unknown1"];
+        Unknown2 = Array["Unknown2"];
+        Unknown3 = Array["Unknown3"];
+        ref_extra = Array["ref_extra"];
+    }
+};
+
+struct ExtraInfo_yaml
+{
+    ryml::NodeRef Root;
+    ryml::NodeRef Array;
+
+    ryml::NodeRef ExtraInfoLength;
+    ryml::NodeRef HeaderUnknown; // Always 0x20, only present if ExtraInfoLength is 8.
+    ryml::NodeRef ExtraUnknown1;
+    ryml::NodeRef ExtraUnknown2; // 0 = Grass, 1 = Water
+    ryml::NodeRef ExtraUnknown3;
+    ryml::NodeRef ExtraUnknown4;
+};
+
 struct TSCB_Header
 {
 	char ID[4];				 // This will always be 54 53 43 42 ("TSCB")
@@ -64,7 +117,7 @@ struct MaterialInfoData
 struct AreaArrayData
 {
     float XPosition;
-    float YPosition;
+    float ZPosition;
     float AreaSize;         // "(length & width)"
     float MinTerrainHeight; // Range from 0 to 1
     float MaxTerrainHeight; // Range from 0 to 1
@@ -75,11 +128,6 @@ struct AreaArrayData
     unsigned int Unknown2;  // Usually 0.
     unsigned int Unknown3;  // Usually 0.
     unsigned int ref_extra; // Indicates if there will be an extra_info_array attached.
-
-    // Extra Info table, only present if ref_extra != 0.
-
-    unsigned int ExtraInfoLength; // Number of values in the array
-    unsigned int HeaderUnknown;   // Only present if ExtraInfoLength = 8
 };
 
 struct ExtraAreaArray

@@ -49,7 +49,7 @@ struct AreaArray_yaml
     ryml::NodeRef MaxTerrainHeight;
     ryml::NodeRef MinWaterHeight;
     ryml::NodeRef MaxWaterHeight;
-    ryml::NodeRef Unknown1;
+    ryml::NodeRef ExtraInfoElementCount;
     ryml::NodeRef Unknown2;
     ryml::NodeRef Unknown3;
     ryml::NodeRef ref_extra;
@@ -69,7 +69,7 @@ struct AreaArray_yaml
         MaxTerrainHeight = Array["MaxTerrainHeight"];
         MinWaterHeight = Array["MinWaterHeight"];
         MaxWaterHeight = Array["MaxWaterHeight"];
-        Unknown1 = Array["Unknown1"];
+        ExtraInfoElementCount = Array["ExtraInfoElementCount"];
         Unknown2 = Array["Unknown2"];
         Unknown3 = Array["Unknown3"];
         ref_extra = Array["ref_extra"];
@@ -82,7 +82,6 @@ struct ExtraInfo_yaml
     ryml::NodeRef Array;
 
     ryml::NodeRef ExtraInfoLength;
-    ryml::NodeRef HeaderUnknown; // Always 0x20, only present if ExtraInfoLength is 8.
     ryml::NodeRef ExtraUnknown1;
     ryml::NodeRef ExtraUnknown2; // 0 = Grass, 1 = Water
     ryml::NodeRef ExtraUnknown3;
@@ -118,12 +117,12 @@ struct AreaArrayData
 {
     float XPosition;
     float ZPosition;
-    float AreaSize;         // "(length & width)"
+    float AreaSize;         // Length & width of the area
     float MinTerrainHeight; // Range from 0 to 1
     float MaxTerrainHeight; // Range from 0 to 1
     float MinWaterHeight;   // Range from 0 to 1
     float MaxWaterHeight;   // Range from 0 to 1
-    unsigned int Unknown1;  // Usually 0, 1, or 2. Crashes on 4 & 16.
+    unsigned int ExtraInfoElementCount; // The number of elements in the extra info array
     unsigned int FileBaseOffset; // Relative offset to file base name string
     unsigned int Unknown2;  // Usually 0.
     unsigned int Unknown3;  // Usually 0.

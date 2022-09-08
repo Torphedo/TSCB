@@ -101,7 +101,7 @@ int main()
         SwapEndianFloat(&AreaArray.MaxTerrainHeight);
         SwapEndianFloat(&AreaArray.MinWaterHeight);
         SwapEndianFloat(&AreaArray.MaxWaterHeight);
-        SwapEndianUInt(&AreaArray.Unknown1);
+        SwapEndianUInt(&AreaArray.ExtraInfoElementCount);
         SwapEndianUInt(&AreaArray.FileBaseOffset);
         SwapEndianUInt(&AreaArray.Unknown2);
         SwapEndianUInt(&AreaArray.Unknown3);
@@ -117,7 +117,7 @@ int main()
         area.MaxTerrainHeight << AreaArray.MaxTerrainHeight;
         area.MinWaterHeight << AreaArray.MinWaterHeight;
         area.MaxWaterHeight << AreaArray.MaxWaterHeight;
-        area.Unknown1 << AreaArray.Unknown1;
+        area.ExtraInfoElementCount << AreaArray.ExtraInfoElementCount;
         area.Unknown2 << AreaArray.Unknown2;
         area.Unknown3 << AreaArray.Unknown3;
         area.ref_extra << AreaArray.ref_extra;
@@ -146,12 +146,10 @@ int main()
             {
                 unsigned int HeaderUnknown;   // Only present if ExtraInfoLength = 8
                 fread(&HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
-                SwapEndianUInt(&HeaderUnknown);
-                ExtraYaml.HeaderUnknown = ExtraYaml.Array["HeaderUnknown"];
-                ExtraYaml.HeaderUnknown << HeaderUnknown;
+                SwapEndianUInt(&HeaderUnknown); // Not printed to YAML, we can insert this at save time
             }
 
-            for (int j = 0; j < (ExtraInfoLength / 4); j++)
+            for (int j = 0; j < AreaArray.ExtraInfoElementCount; j++)
             {
                 ExtraAreaArray ExtraInfo;
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
@@ -161,12 +159,12 @@ int main()
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
 
                 ExtraYaml.ExtraUnknown1 = ExtraYaml.Array["ExtraUnknown1"];
-                ExtraYaml.ExtraUnknown1 << ExtraInfo.ExtraUnknown1;
                 ExtraYaml.ExtraUnknown2 = ExtraYaml.Array["ExtraUnknown2"];
-                ExtraYaml.ExtraUnknown2 << ExtraInfo.ExtraUnknown2;
                 ExtraYaml.ExtraUnknown3 = ExtraYaml.Array["ExtraUnknown3"];
-                ExtraYaml.ExtraUnknown3 << ExtraInfo.ExtraUnknown3;
                 ExtraYaml.ExtraUnknown4 = ExtraYaml.Array["ExtraUnknown4"];
+                ExtraYaml.ExtraUnknown1 << ExtraInfo.ExtraUnknown1;
+                ExtraYaml.ExtraUnknown2 << ExtraInfo.ExtraUnknown2;
+                ExtraYaml.ExtraUnknown3 << ExtraInfo.ExtraUnknown3;
                 ExtraYaml.ExtraUnknown4 << ExtraInfo.ExtraUnknown4;
             }
         }

@@ -72,15 +72,6 @@ struct AreaArray_yaml
     }
 };
 
-struct ExtraInfo_yaml
-{
-    ryml::NodeRef Root;
-    ryml::NodeRef Array;
-
-    ryml::NodeRef ExtraInfoLength;
-    ryml::NodeRef ExtraUnknown2; // 0 = Grass, 1 = Water
-};
-
 struct TSCB_Header
 {
 	char ID[4];				 // This will always be 54 53 43 42 ("TSCB")

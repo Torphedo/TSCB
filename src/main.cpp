@@ -120,28 +120,25 @@ int main()
         area.ref_extra << AreaArray.ref_extra;
 
 
-        if (AreaArray.ref_extra != 0)
+        if (AreaArray.ExtraInfoElementCount != 0)
         {
-            // Extra Info table, only present if ref_extra != 0.
+            // Extra Info table
 
-            ExtraInfo_yaml ExtraYaml;
+            ryml::NodeRef Root = area.Root;
+            Root |= ryml::SEQ;
 
-            ExtraYaml.Root = area.Root;
-            ExtraYaml.Root |= ryml::SEQ;
+            ryml::NodeRef Array = area.Array;
+            Array |= ryml::MAP;
 
-            ExtraYaml.Array = area.Array;
-            ExtraYaml.Array |= ryml::MAP;
-
-            ExtraYaml.ExtraInfoLength = ExtraYaml.Array["ExtraInfoLength"];
+            ryml::NodeRef GrassOrWater; // 0 = Grass, 1 = Water
 
             unsigned int ExtraInfoLength; // Number of values in the array
 
+            // This data is read just to advance the file pointer, it can be calculated at save time.
             fread(&ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
-            SwapEndianUInt(&ExtraInfoLength);
-            ExtraYaml.ExtraInfoLength << ExtraInfoLength;
-            if (ExtraInfoLength == 8)
+            if (AreaArray.ExtraInfoElementCount == 2)
             {
-                unsigned int HeaderUnknown;   // Only present if ExtraInfoLength = 8
+                unsigned int HeaderUnknown;   // Only present if ExtraInfoElementCount = 2
                 fread(&HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
                 SwapEndianUInt(&HeaderUnknown); // Not printed to YAML, we can insert this at save time
             }
@@ -155,8 +152,8 @@ int main()
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
 
-                ExtraYaml.ExtraUnknown2 = ExtraYaml.Array["ExtraUnknown2"];
-                ExtraYaml.ExtraUnknown2 << ExtraInfo.ExtraUnknown2;
+                GrassOrWater = Array["GrassOrWater"];
+                GrassOrWater << ExtraInfo.ExtraUnknown2;
             }
         }
     }

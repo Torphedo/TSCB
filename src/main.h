@@ -10,8 +10,7 @@ struct TSCB_Header
 	float TerrainHeightScale;		 // Used to calculate height values from HGHT. Normally 800.0.
 	unsigned int MaterialInfoLength; // # of elements in material_info_array
 	unsigned int AreaArrayLength;	 // # of elements in area_array
-	unsigned int Pad1;				 // Probably padding
-	unsigned int Pad2;				 // Probably padding
+	unsigned int _pad[2];
 	float TileSize;					 // Used by area array.
 	unsigned int Unknown2;			 // Unknown 00 00 00 08
 };

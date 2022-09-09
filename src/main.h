@@ -124,8 +124,10 @@ struct AreaArrayData
     float MaxWaterHeight;   // Range from 0 to 1
     unsigned int ExtraInfoElementCount; // The number of elements in the extra info array
     unsigned int FileBaseOffset; // Relative offset to file base name string
-    unsigned int Unknown2;  // Usually 0.
-    unsigned int Unknown3;  // Usually 0.
+    // The wiki says Unknown2 & Unknown3 are "usually" 0, but I haven't found any instances
+    // where they aren't (checked programmatically).
+    unsigned int Unknown2;
+    unsigned int Unknown3;
     unsigned int ref_extra; // Indicates if there will be an extra_info_array attached.
 };
 

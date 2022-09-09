@@ -158,14 +158,8 @@ int main()
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
 
-                ExtraYaml.ExtraUnknown1 = ExtraYaml.Array["ExtraUnknown1"];
                 ExtraYaml.ExtraUnknown2 = ExtraYaml.Array["ExtraUnknown2"];
-                ExtraYaml.ExtraUnknown3 = ExtraYaml.Array["ExtraUnknown3"];
-                ExtraYaml.ExtraUnknown4 = ExtraYaml.Array["ExtraUnknown4"];
-                ExtraYaml.ExtraUnknown1 << ExtraInfo.ExtraUnknown1;
                 ExtraYaml.ExtraUnknown2 << ExtraInfo.ExtraUnknown2;
-                ExtraYaml.ExtraUnknown3 << ExtraInfo.ExtraUnknown3;
-                ExtraYaml.ExtraUnknown4 << ExtraInfo.ExtraUnknown4;
             }
         }
     }

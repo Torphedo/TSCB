@@ -1,12 +1,11 @@
 #include <cstdio>
-#include <memory.h>
 
 #include "main.h"
 
 int main()
 {
 	FILE* TSCB_file;
-	TSCB_Header header;
+	TSCB_Header header = {0};
 	
     TSCB_file = fopen("MainField.tscb", "rb");
 	if (TSCB_file == nullptr)
@@ -50,13 +49,13 @@ int main()
        reason it's read at all is to advance the file pointer.
     */
 
-	unsigned int* MatLookup = new unsigned int[sizeof(unsigned int) * header.MaterialInfoLength];
+	auto* MatLookup = new unsigned int[sizeof(unsigned int) * header.MaterialInfoLength];
     fread(MatLookup, sizeof(unsigned int) * header.MaterialInfoLength, 1, TSCB_file);
 
     // Texture coordinates and other metadata
 	for (int i = 0; i < header.MaterialInfoLength; i++)
 	{
-        MaterialInfoData MatInfo;
+        MaterialInfoData MatInfo = {0};
         fread(&MatInfo, sizeof(MatInfo), 1, TSCB_file);
         SwapEndianUInt(&MatInfo.index);
         SwapEndianFloat(&MatInfo.Texture_V);
@@ -84,14 +83,14 @@ int main()
     // Area Array
 
     // Same reasoning as in the Material Information lookup table.
-    unsigned int* AreaLookup = new unsigned int[sizeof(unsigned int) * header.AreaArrayLength];
+    auto* AreaLookup = new unsigned int[sizeof(unsigned int) * header.AreaArrayLength];
     fread(AreaLookup, sizeof(unsigned int) * header.AreaArrayLength, 1, TSCB_file);
 
     for (int i = 0; i < header.AreaArrayLength; i++)
     {
         // This is getting freed at the end of the loop right now. The next
         // step is to stream the data to the YAML tree in the loop.
-        AreaArrayData AreaArray;
+        AreaArrayData AreaArray = {0};
 
         fread(&AreaArray, sizeof(AreaArray), 1, TSCB_file);
         SwapEndianFloat(&AreaArray.XPosition);
@@ -149,7 +148,7 @@ int main()
 
             for (int j = 0; j < AreaArray.ExtraInfoElementCount; j++)
             {
-                ExtraAreaArray ExtraInfo;
+                ExtraAreaArray ExtraInfo = {0};
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown1); // Always 3.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown2); // Setting this to 0 = Grass, 1 = Water

@@ -51,6 +51,5 @@ struct ExtraAreaArray
     unsigned int ExtraUnknown4; // Always 0.
 };
 
-void SwapEndianInt(int* input);
 void SwapEndianUInt(unsigned int* input);
-void SwapEndianFloat(float* floatinput);
+void SwapEndianFloat(float* input);

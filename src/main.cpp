@@ -16,7 +16,6 @@ int main()
 
     // Reading header & fixing endian-ness
     fread(&header, sizeof(header), 1, TSCB_file);
-
     {
         SwapEndianUInt(&header.Unknown1);
         SwapEndianUInt(&header.BaseTableOffset);

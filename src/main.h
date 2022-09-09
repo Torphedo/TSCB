@@ -78,10 +78,7 @@ struct ExtraInfo_yaml
     ryml::NodeRef Array;
 
     ryml::NodeRef ExtraInfoLength;
-    ryml::NodeRef ExtraUnknown1;
     ryml::NodeRef ExtraUnknown2; // 0 = Grass, 1 = Water
-    ryml::NodeRef ExtraUnknown3;
-    ryml::NodeRef ExtraUnknown4;
 };
 
 struct TSCB_Header

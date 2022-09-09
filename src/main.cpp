@@ -123,13 +123,10 @@ int main()
         {
             // Extra Info table
 
-            ryml::NodeRef Root = area.Root;
-            Root |= ryml::SEQ;
+            ryml::NodeRef Root = area.Root[i]; // Set the root of ExtraInfo to be in the root of the area array
 
-            ryml::NodeRef Array = area.Array;
-            Array |= ryml::MAP;
-
-            ryml::NodeRef GrassOrWater; // 0 = Grass, 1 = Water
+            ryml::NodeRef GrassOrWater = Root["GrassOrWater"]; // Set up ExtraInfo array
+            GrassOrWater |= ryml::SEQ;
 
             unsigned int ExtraInfoLength; // Number of values in the array
 
@@ -151,8 +148,8 @@ int main()
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
 
-                GrassOrWater = Array["GrassOrWater"];
-                GrassOrWater << ExtraInfo.GrassOrWater;
+
+                GrassOrWater[j] << ExtraInfo.GrassOrWater;
             }
         }
     }

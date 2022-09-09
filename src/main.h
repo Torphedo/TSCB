@@ -50,8 +50,6 @@ struct AreaArray_yaml
     ryml::NodeRef MinWaterHeight;
     ryml::NodeRef MaxWaterHeight;
     ryml::NodeRef ExtraInfoElementCount;
-    ryml::NodeRef Unknown2;
-    ryml::NodeRef Unknown3;
     ryml::NodeRef ref_extra;
     AreaArray_yaml(unsigned int index)
     {
@@ -70,8 +68,6 @@ struct AreaArray_yaml
         MinWaterHeight = Array["MinWaterHeight"];
         MaxWaterHeight = Array["MaxWaterHeight"];
         ExtraInfoElementCount = Array["ExtraInfoElementCount"];
-        Unknown2 = Array["Unknown2"];
-        Unknown3 = Array["Unknown3"];
         ref_extra = Array["ref_extra"];
     }
 };

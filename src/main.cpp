@@ -118,8 +118,6 @@ int main()
         area.MinWaterHeight << AreaArray.MinWaterHeight;
         area.MaxWaterHeight << AreaArray.MaxWaterHeight;
         area.ExtraInfoElementCount << AreaArray.ExtraInfoElementCount;
-        area.Unknown2 << AreaArray.Unknown2;
-        area.Unknown3 << AreaArray.Unknown3;
         area.ref_extra << AreaArray.ref_extra;
 
 

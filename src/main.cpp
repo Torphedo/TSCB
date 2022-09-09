@@ -147,12 +147,12 @@ int main()
                 ExtraAreaArray ExtraInfo = {0};
                 fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown1); // Always 3.
-                SwapEndianUInt(&ExtraInfo.ExtraUnknown2); // Setting this to 0 = Grass, 1 = Water
+                SwapEndianUInt(&ExtraInfo.GrassOrWater);  // Setting this to 0 = Grass, 1 = Water
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
                 SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
 
                 GrassOrWater = Array["GrassOrWater"];
-                GrassOrWater << ExtraInfo.ExtraUnknown2;
+                GrassOrWater << ExtraInfo.GrassOrWater;
             }
         }
     }

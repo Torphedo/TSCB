@@ -72,7 +72,7 @@ struct AreaArray_yaml
 
 struct TSCB_Header
 {
-	char ID[4];				 // This will always be 54 53 43 42 ("TSCB")
+	char ID[4];				         // This will always be 54 53 43 42 ("TSCB")
 	unsigned int Version;			 // Game will crash on load unless this is 10.
 	unsigned int Unknown1;			 // Unknown. Game crashes on load unless this is 00 00 00 01.
 	unsigned int BaseTableOffset;	 // file_base table relative offset.
@@ -116,7 +116,7 @@ struct AreaArrayData
 struct ExtraAreaArray
 {
     unsigned int ExtraUnknown1; // Always 3.
-    unsigned int ExtraUnknown2; // Setting this to 0 = Grass, 1 = Water
+    unsigned int GrassOrWater;  // Setting this to 0 = Grass, 1 = Water
     unsigned int ExtraUnknown3; // Always 1.
     unsigned int ExtraUnknown4; // Always 0.
 };

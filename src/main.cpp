@@ -1,163 +1,24 @@
 #include <cstdio>
+#include <memory.h>
 
 #include "main.h"
+#include "yaml.h"
 
 int main()
 {
-	FILE* TSCB_file;
-	TSCB_Header header = {0};
-	
-    TSCB_file = fopen("MainField.tscb", "rb");
-	if (TSCB_file == nullptr)
-	{
-		printf("Couldn't open file! Place MainField.tscb next to the executable.\n");
-		return 1;
-	}
-
-    // Reading header & fixing endian-ness
-    fread(&header, sizeof(header), 1, TSCB_file);
+    FILE* TSCB_file = fopen("MainField.tscb", "rb");
+    if (TSCB_file == nullptr)
     {
-        SwapEndianUInt(&header.Unknown1);
-        SwapEndianUInt(&header.BaseTableOffset);
-        SwapEndianFloat(&header.WorldScale);
-        SwapEndianFloat(&header.TerrainHeightScale);
-        SwapEndianUInt(&header.MaterialInfoLength);
-        SwapEndianUInt(&header.AreaArrayLength);
-        SwapEndianFloat(&header.TileSize);
+        printf("Couldn't open file! Place MainField.tscb next to the executable.\n");
+        return 1;
     }
-
-    root |= ryml::MAP;
-
-    header_yaml header_yaml;
-    header_yaml.WorldScale = header_yaml.Root["WorldScale"];
-    header_yaml.TerrainHeightScale = header_yaml.Root["TerrainHeightScale"];
-    header_yaml.TileSize = header_yaml.Root["TileSize"];
-
-    header_yaml.WorldScale << header.WorldScale;
-    header_yaml.TerrainHeightScale << header.TerrainHeightScale;
-    header_yaml.TileSize << header.TileSize;
-
-	// Material Information Section
-	unsigned int SectionSize;
-	fread(&SectionSize, sizeof(unsigned int), 1, TSCB_file);
-	SwapEndianUInt(&SectionSize);
-
-	/*
-	   Lookup table containing relative offsets to every element of the material info array.
-       This isn't parsed or stored because the table will be re-generated on save. The only
-       reason it's read at all is to advance the file pointer.
-    */
-
-	auto* MatLookup = new unsigned int[sizeof(unsigned int) * header.MaterialInfoLength];
-    fread(MatLookup, sizeof(unsigned int) * header.MaterialInfoLength, 1, TSCB_file);
-
-    // Texture coordinates and other metadata
-	for (int i = 0; i < header.MaterialInfoLength; i++)
-	{
-        MaterialInfoData MatInfo = {0};
-        fread(&MatInfo, sizeof(MatInfo), 1, TSCB_file);
-        SwapEndianUInt(&MatInfo.index);
-        SwapEndianFloat(&MatInfo.Texture_V);
-        SwapEndianFloat(&MatInfo.Texture_U);
-        SwapEndianFloat(&MatInfo.Unknown1);
-        SwapEndianFloat(&MatInfo.Unknown2);
-
-        materialinfo_yaml materialinfo;
-
-        materialinfo.Array = materialinfo.Root[i];
-        materialinfo.Array |= ryml::MAP;
-        materialinfo.Index = materialinfo.Array["Index"];
-        materialinfo.TextureCoordU = materialinfo.Array["TextureCoordU"];
-        materialinfo.TextureCoordV = materialinfo.Array["TextureCoordV"];
-        materialinfo.UnknownFloat1 = materialinfo.Array["UnknownFloat1"];
-        materialinfo.UnknownFloat2 = materialinfo.Array["UnknownFloat2"];
-
-        materialinfo.Index << i;
-        materialinfo.TextureCoordU << MatInfo.Texture_U;
-        materialinfo.TextureCoordV << MatInfo.Texture_V;
-        materialinfo.UnknownFloat1 << MatInfo.Unknown1;
-        materialinfo.UnknownFloat2 << MatInfo.Unknown2;
-    }
-
-    // Area Array
-
-    // Same reasoning as in the Material Information lookup table.
-    auto* AreaLookup = new unsigned int[sizeof(unsigned int) * header.AreaArrayLength];
-    fread(AreaLookup, sizeof(unsigned int) * header.AreaArrayLength, 1, TSCB_file);
-
-    for (int i = 0; i < header.AreaArrayLength; i++)
+    else
     {
-        // This is getting freed at the end of the loop right now. The next
-        // step is to stream the data to the YAML tree in the loop.
-        AreaArrayData AreaArray = {0};
-
-        fread(&AreaArray, sizeof(AreaArray), 1, TSCB_file);
-        SwapEndianFloat(&AreaArray.XPosition);
-        SwapEndianFloat(&AreaArray.ZPosition);
-        SwapEndianFloat(&AreaArray.AreaSize);
-        SwapEndianFloat(&AreaArray.MinTerrainHeight);
-        SwapEndianFloat(&AreaArray.MaxTerrainHeight);
-        SwapEndianFloat(&AreaArray.MinWaterHeight);
-        SwapEndianFloat(&AreaArray.MaxWaterHeight);
-        SwapEndianUInt(&AreaArray.ExtraInfoElementCount);
-        SwapEndianUInt(&AreaArray.FileBaseOffset);
-        SwapEndianUInt(&AreaArray.Unknown2);
-        SwapEndianUInt(&AreaArray.Unknown3);
-        SwapEndianUInt(&AreaArray.ref_extra);
-
-        AreaArray_yaml area(i);
-
-        area.Index << i;
-        area.XPosition << AreaArray.XPosition;
-        area.ZPosition << AreaArray.ZPosition;
-        area.AreaSize << AreaArray.AreaSize;
-        area.MinTerrainHeight << AreaArray.MinTerrainHeight;
-        area.MaxTerrainHeight << AreaArray.MaxTerrainHeight;
-        area.MinWaterHeight << AreaArray.MinWaterHeight;
-        area.MaxWaterHeight << AreaArray.MaxWaterHeight;
-        area.ExtraInfoElementCount << AreaArray.ExtraInfoElementCount;
-
-
-        if (AreaArray.ExtraInfoElementCount != 0)
-        {
-            // Extra Info table
-
-            ryml::NodeRef Root = area.Root[i]; // Set the root of ExtraInfo to be in the root of the area array
-
-            ryml::NodeRef GrassOrWater = Root["GrassOrWater"]; // Set up ExtraInfo array
-            GrassOrWater |= ryml::SEQ;
-
-            unsigned int ExtraInfoLength; // Number of values in the array
-
-            // This data is read just to advance the file pointer, it can be calculated at save time.
-            fread(&ExtraInfoLength, sizeof(unsigned int), 1, TSCB_file);
-            if (AreaArray.ExtraInfoElementCount == 2)
-            {
-                unsigned int HeaderUnknown;   // Only present if ExtraInfoElementCount = 2
-                fread(&HeaderUnknown, sizeof(unsigned int), 1, TSCB_file);
-                SwapEndianUInt(&HeaderUnknown); // Not printed to YAML, we can insert this at save time
-            }
-
-            for (int j = 0; j < AreaArray.ExtraInfoElementCount; j++)
-            {
-                ExtraAreaArray ExtraInfo = {0};
-                fread(&ExtraInfo, sizeof(unsigned int) * 4, 1, TSCB_file);
-                SwapEndianUInt(&ExtraInfo.ExtraUnknown1); // Always 3.
-                SwapEndianUInt(&ExtraInfo.GrassOrWater);  // Setting this to 0 = Grass, 1 = Water
-                SwapEndianUInt(&ExtraInfo.ExtraUnknown3); // Always 1.
-                SwapEndianUInt(&ExtraInfo.ExtraUnknown4); // Always 0.
-
-
-                GrassOrWater[j] << ExtraInfo.GrassOrWater;
-            }
-        }
+        FILE* yamlout = fopen("MainField.yaml", "wb");
+        DumpTSCBToYaml(TSCB_file, yamlout);
+        fclose(yamlout);
+        fclose(TSCB_file);
     }
-
-    FILE* yamlout = fopen("MainField.yaml", "wb");
-    ryml::emit(yaml_tree, yamlout); // Writes the YAML tree to a file
-    fclose(yamlout);
-
-	fclose(TSCB_file);
 	return 0;
 }
 

@@ -6,6 +6,7 @@
 
 int main()
 {
+    ReadYaml();
     FILE* TSCB_file = fopen("MainField.tscb", "rb");
     if (TSCB_file == nullptr)
     {

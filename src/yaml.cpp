@@ -207,3 +207,24 @@ int DumpTSCBToYaml(FILE* TSCB_file, FILE* yamlout)
     ryml::emit(yaml_tree, yamlout); // Writes the YAML tree to a file
     return 0;
 }
+
+int ReadYaml()
+{
+    FILE* yaml_in = fopen("MainField.yaml", "rb"); // Open YAML file
+
+    fseek(yaml_in, 0L, SEEK_END); // Jump the file pointer to the end of the file
+    unsigned long size = ftell(yaml_in); // Get the position of the pointer (filesize)
+    rewind(yaml_in); // Jump the file pointer back to the start
+
+    auto* yamlbuf = new char[size];
+    fread(yamlbuf, size, 1, yaml_in);
+
+    ryml::Tree tree = ryml::parse_in_arena(c4::to_csubstr(yamlbuf));
+
+    float WorldScale = 0.0;
+    ryml::NodeRef Header = tree.rootref()["Header"];
+    Header["WorldScale"] >> WorldScale;
+
+    fclose(yaml_in);
+    return 0;
+}

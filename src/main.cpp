@@ -1,52 +1,27 @@
 #include <cstdio>
-#include <memory.h>
-
-#include "main.h"
 #include "yaml.h"
 
-int main()
+int main(int argc, char** argv)
 {
-    ReadYaml();
-    FILE* TSCB_file = fopen("MainField.tscb", "rb");
+    if (argc == 1)
+    {
+        printf("No file specified.\n");
+        return -1;
+    }
+
+    // argv[1] = "bin/MainField_no_water.tscb";
+
+    FILE* TSCB_file = fopen(argv[1], "rb");
     if (TSCB_file == nullptr)
     {
-        printf("Couldn't open file! Place MainField.tscb next to the executable.\n");
-        return 1;
+        printf("Couldn't open file!\n");
+        return -1;
     }
-    else
-    {
-        FILE* yamlout = fopen("MainField.yaml", "wb");
-        DumpTSCBToYaml(TSCB_file, yamlout);
-        fclose(yamlout);
-        fclose(TSCB_file);
-    }
+
+    FILE* yamlout = fopen("output.yaml", "wb");
+    DumpTSCBToYaml(TSCB_file, yamlout);
+    fclose(yamlout);
+    fclose(TSCB_file);
+
 	return 0;
-}
-
-void SwapEndianUInt(unsigned int* input)
-{
-    unsigned int converted = 0;
-    unsigned int value = *input;
-
-    converted |= ((0xff & value) << 24);        // Places the first byte in the 4th byte of the output
-    converted |= (((0xff << 8) & value) << 8);  // Places the second byte in the 3rd byte of the output
-    converted |= (((0xff << 16) & value) >> 8); // Places the third byte in the 2nd byte of the output
-    converted |= (((0xff << 24) & value) >> 24);// Places the fourth byte in the 1st byte of the output
-    *input = converted;
-}
-
-void SwapEndianFloat(float* input)
-{
-    unsigned int converted = 0;
-    unsigned int value = 0;
-
-    // Copy float data into an int
-    memcpy(&value, input, 4);
-
-    converted |= ((0xff & value) << 24);         // Places the first byte in the 4th byte of the output
-    converted |= (((0xff << 8) & value) << 8);   // Places the second byte in the 3rd byte of the output
-    converted |= (((0xff << 16) & value) >> 8);  // Places the third byte in the 2nd byte of the output
-    converted |= (((0xff << 24) & value) >> 24); // Places the fourth byte in the 1st byte of the output
-
-    memcpy(input, &converted, 4);
 }

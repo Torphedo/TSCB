@@ -1,5 +1,9 @@
 #include "yaml.h"
-#include "main.h"
+#include "structures.h"
+extern "C" {
+    #include "endian.h"
+}
+
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "vendor/rapidyaml-0.4.1.hpp"
 

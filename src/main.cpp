@@ -9,8 +9,6 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // argv[1] = "bin/MainField_no_water.tscb";
-
     FILE* TSCB_file = fopen(argv[1], "rb");
     if (TSCB_file == nullptr)
     {

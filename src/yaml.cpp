@@ -5,7 +5,7 @@ extern "C" {
 }
 
 #define RYML_SINGLE_HDR_DEFINE_NOW
-#include "vendor/rapidyaml-0.4.1.hpp"
+#include "vendor/rapidyaml-0.5.0.hpp"
 
 struct header_yaml
 {
